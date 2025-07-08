@@ -130,21 +130,21 @@ public:
 // Fo the indirection here see https://stackoverflow.com/questions/13301428/token-pasting-and-line/13301627#13301627
 #define NAME(base) CONCAT(base, __LINE__)
 
-#define TEST(suite, message)                                   \
-    void NAME(TestFunction_)(ts::Context& context, ts::VERBOSITY verbosity);            \
-    struct NAME(TestRegistrar_)                                \
-    {                                                          \
-        NAME(TestRegistrar_)()                                 \
-        {                                                      \
-            suite.register_test(message, NAME(TestFunction_)); \
-        }                                                      \
-    } NAME(test_registrar_);                                   \
+#define TEST(suite, message)                                                 \
+    void NAME(TestFunction_)(ts::Context& context, ts::VERBOSITY verbosity); \
+    struct NAME(TestRegistrar_)                                              \
+    {                                                                        \
+        NAME(TestRegistrar_)()                                               \
+        {                                                                    \
+            suite.register_test(message, NAME(TestFunction_));               \
+        }                                                                    \
+    } NAME(test_registrar_);                                                 \
     void NAME(TestFunction_)(ts::Context& context, ts::VERBOSITY verbosity)
 
 #define ASSERT_TRUE(condition)                                            \
 if ( !(condition) )                                                       \
 {                                                                         \
-    if ( verbosity != ts::VERBOSITY::mute )                                   \
+    if ( verbosity != ts::VERBOSITY::mute )                               \
     {                                                                     \
         std::ostringstream oss;                                           \
         oss << "\n\t" << ts::RED << "[ASSERT TRUE failed] " << ts::RESET  \
@@ -152,44 +152,74 @@ if ( !(condition) )                                                       \
         context.log_failure(oss.str());                                   \
     }                                                                     \
 }                                                                         \
-else if ( verbosity == ts::VERBOSITY::verbose )                               \
+else if ( verbosity == ts::VERBOSITY::verbose )                           \
 {                                                                         \
         std::ostringstream oss;                                           \
         oss << "\n\t" << ts::GREEN << "[ASSERT TRUE] " << ts::RESET       \
             << #condition;                                                \
         context.log_success(oss.str());                                   \
-}
+}                                                                         \
 
-#define ASSERT_FALSE(condition)                                        \
-if ( (condition) )                                                     \
-{                                                                      \
-    std::ostringstream oss;                                            \
-    oss << "\n\t" << ts::RED << "[ASSERT FALSE failed] " << ts::RESET  \
-    << #condition;                                                     \
-    context.log_failure(oss.str());                                            \
-}
-
-#define ASSERT_EQ(lhs, rhs)                                            \
-if ( !(lhs == rhs) )                                                   \
-{                                                                      \
-    std::ostringstream oss;                                            \
-    oss << "\n\t" << ts::RED << "[ASSERT EQUAL failed] " << ts::RESET  \
-        << #lhs << " == " << #rhs                                      \
-        << "\n\t" << "[VALUES] " << to_string_if_streamable(lhs)       \
-                     << ", and " << to_string_if_streamable(rhs);      \
-    context.log_failure(oss.str());                                            \
-}
-
-#define ASSERT_NEQ(lhs, rhs)                                               \
-if ( !(lhs != rhs) )                                                       \
+#define ASSERT_FALSE(condition)                                            \
+if ( (condition) )                                                         \
+{                                                                          \
+    if ( verbosity != ts::VERBOSITY::mute )                                \
+    {                                                                      \
+        std::ostringstream oss;                                            \
+        oss << "\n\t" << ts::RED << "[ASSERT FALSE failed] " << ts::RESET  \
+        << #condition;                                                     \
+        context.log_failure(oss.str());                                    \
+    }                                                                      \
+}                                                                          \
+else if ( verbosity == ts::VERBOSITY::verbose )                              \
 {                                                                          \
     std::ostringstream oss;                                                \
-    oss << "\n\t" << ts::RED << "[ASSERT NOT EQUAL failed] " << ts::RESET  \
-        << #lhs << " != " << #rhs                                          \
-        << "\n\t" << "[VALUES] " << to_string_if_streamable(lhs)           \
-                     << ", and " << to_string_if_streamable(rhs);          \
-    context.log_failure(oss.str());                                                \
-}
+    oss << "\n\t" << ts::GREEN << "[ASSERT FALSE] " << ts::RESET           \
+        << #condition;                                                     \
+    context.log_success(oss.str());                                        \
+}                                                                          \
+
+#define ASSERT_EQ(lhs, rhs)                                                \
+if ( !(lhs == rhs) )                                                       \
+{                                                                          \
+    if ( verbosity != ts::VERBOSITY::mute )                                \
+    {                                                                      \
+        std::ostringstream oss;                                            \
+        oss << "\n\t" << ts::RED << "[ASSERT EQUAL failed] " << ts::RESET  \
+            << #lhs << " == " << #rhs                                      \
+            << "\n\t" << "[VALUES] " << to_string_if_streamable(lhs)       \
+                        << ", and " << to_string_if_streamable(rhs);       \
+        context.log_failure(oss.str());                                    \
+    }                                                                      \
+}                                                                          \
+else if ( verbosity == ts::VERBOSITY::verbose )                              \
+{                                                                          \
+    std::ostringstream oss;                                                \
+    oss << "\n\t" << ts::GREEN << "[ASSERT EQUAL] " << ts::RESET           \
+        << #lhs << " == " << #rhs ;                                        \
+    context.log_success(oss.str());                                        \
+}                                                                          \
+
+#define ASSERT_NEQ(lhs, rhs)                                                   \
+if ( (lhs == rhs) )                                                            \
+{                                                                              \
+    if ( verbosity != ts::VERBOSITY::mute )                                    \
+    {                                                                          \
+        std::ostringstream oss;                                                \
+        oss << "\n\t" << ts::RED << "[ASSERT NOT EQUAL failed] " << ts::RESET  \
+            << #lhs << " != " << #rhs                                          \
+            << "\n\t" << "[VALUES] " << to_string_if_streamable(lhs)           \
+                        << ", and " << to_string_if_streamable(rhs);           \
+        context.log_failure(oss.str());                                        \
+    }                                                                          \
+}                                                                              \
+else if ( verbosity == ts::VERBOSITY::verbose )                                  \
+{                                                                              \
+    std::ostringstream oss;                                                    \
+    oss << "\n\t" << ts::GREEN << "[ASSERT NOT EQUAL] " << ts::RESET           \
+        << #lhs << " != " << #rhs ;                                            \
+    context.log_success(oss.str());                                            \
+}                                                                              \
 
 #define ASSERT_THROWS(expression)                                      \
 try                                                                    \
@@ -198,7 +228,7 @@ try                                                                    \
     std::ostringstream oss;                                            \
     oss << "\n\t" << ts::RED << "[ASSERT THROWS failed]" << ts::RESET  \
         << #expression << " didn't throw";                             \
-    context.log_failure(oss.str());                                            \
+    context.log_failure(oss.str());                                    \
 }                                                                      \
 catch (...)                                                            \
 {                                                                      \

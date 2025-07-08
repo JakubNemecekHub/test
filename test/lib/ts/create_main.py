@@ -14,8 +14,6 @@ def main() -> None:
     if not check_test_src_folder():
         return
 
-    # run combine_tests.py?
-
     SOURCE_FILE_PATH: Path = Path(TEST_FOLDER).joinpath("_tests.hpp")
     if not SOURCE_FILE_PATH.exists():
         print(f"file {SOURCE_FILE_PATH} doesn't exist.")

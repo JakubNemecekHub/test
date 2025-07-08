@@ -37,6 +37,9 @@ TEST(tests, "Failing tests of non-streamable class.")
 }
 
 #pragma once
+
+#include <iostream>
+
 #include "../lib/ts/suite.hpp"
 
 
@@ -44,6 +47,6 @@ ts::Suite some { "Now this is something." };
 
 TEST(some, "Oh yeah.")
 {
-    ASSERT_FALSE(false)
+    ASSERT_TRUE(true)
 }
 
